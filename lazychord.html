@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<head>
+	<title>LazyChord</title>
+	<link rel="stylesheet" href="bootstrap.min.css">
+	<link rel="stylesheet" href="lazyChord.css">
+</head>
+<body>
+
+	<nav class="navbar navbar-default navbar-static-top" role="navigation">
+	  <div class="container">
+	  	<a class="navbar-brand" href="#">LazyChord</a>
+	    <p class="navbar-text">Created by <a href="http://www.chungvuong.com" class="navbar-link">Chung Vuong</a></p>
+	  </div>
+	</nav>
+	<div id="main">
+
+		<div class="container">
+			<div class="contentContainer">
+				
+			</div>
+		</div>
+
+	</div>
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js" type="text/javascript"></script>
+  	  <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js" type="text/javascript"></script>
+  	  <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.0/backbone-min.js"></script>
+
+  	  <script type="text/template" id="homeViewTemplate">
+  	  	<p>Welcome to LazyChord!  This is a simple webapp, in which you can enter chords for a song you would like to play on guitar.  Then, we will use transposition and the power of the capo to find an easier, more finger-friendly way to play the song still in the same key (ie. more open chords overall)!  Yes, this is fairly pointless if you have some basic music theory knowledge, but might be helpful if you are a beginner guitarist, or, like me, you are just lazy!  Hope you enjoy!</p>
+  	  	<br/>
+  	  	<p style="text-align: center;"><a href="#/enterChords/intro" class="btn btn-success">Click here to get started!</a></p>
+  	  	<br/>
+  	  	<h2>Notes</h2>
+  	  	<p>LazyChord is built using Backbone.js, Underscore.js, Bootstrap, and PHP.</p>
+  	  	<p>This is a very early version.  The functionality is limited, but it will compute correct transpositions when given valid chords.  Hoping to hook up to database or a search API in the future so that manual chord entry is not necessary.  Before that, I hope to implement autocomplete to help with entering chords, since right now, it does not do much validation, so if you enter chords incorrectly, it will not work.  If you would like to try out this app, remember to enter chords like this:</p>
+  	  	<ul>
+  	  		<li>Major chords must be written as just the capital root note (ex. C major -> C)</li>
+  	  		<li>Minor chords must be written as the capital root note appended by a lower case m (ex. A minor -> Am)</li>
+  	  		<li>Major seventh chords must be written as the capital root note appended by all lower case maj7 (ex. G major seventh -> Gmaj7)</li>
+  	  		<li>Seventh chords must be written as the capital root note appended by the number 7 (ex. E seventh -> E7)</li>
+  	  		<li>Minor chords must be written as the capital root note appended by a lower case m (ex. A minor -> Am)</li>
+  	  		<li>Minor seventh chords must be written as the capital root note appended by a lower case m and the number 7 (ex. D minor seventh -> Dm7)</li>
+  	  		<li>Suspended chords must be written as the capital root note appended by all lower case suspension (ex. D suspended 4 -> Dsus4 or D suspended 2 -> Dsus2)</li>
+  	  		<li>Diminished chords must be written as the capital root note appended by all lower case dim (ex. D diminished -> Ddim)</li>
+  	  	</ul>
+
+	  </script>
+
+	  <script type="text/template" id="setOptionsViewTemplate">
+  	  	<p class="activeEditingTitle">the capo</p>
+  	  	<p>Specify how many frets up with a capo, maximum, that you would be willing to play.  We will take this into account when calculating the easiest way to play your song!  For example, if you choose that the max capo position you want to play is 5, then we will find the easiest way to play your song by using a capo on, at most, fret 5.</p> 
+  	  	<select id="capoRestrictSelect">
+  	  		<option>1</option>
+  	  		<option>2</option>
+  	  		<option>3</option>
+  	  		<option>4</option>
+  	  		<option>5</option>
+  	  		<option>6</option>
+  	  		<option>7</option>
+  	  		<option>8</option>
+  	  		<option>9</option>
+  	  		<option>10</option>
+  	  		<option>11</option>
+  	  		<option selected>12</option>
+  		</select>
+
+  		<div class="continueArea">
+  	  			<a class="btn btn-success" href="#/result">Get my LazyChords!</a>
+  	  	</div>
+	  </script>
+
+	  <script type="text/template" id="resultViewTemplate">
+  	  	<p>Here are your LazyChords!</p>
+  	  	<p>This was transposed <b><%= chordsModel.get('transposition') %></b> half-steps.  Play with the capo on fret <b><%= chordsModel.get('capoPosn') %></b>.</p>
+  	  	<h1>Intro</h1>
+  	  	<ul>
+  	  	<% _.each(chordsModel.get('transposedIntro'), function (chord) { %>
+  	  		<a class="chordItem"><%= chord %></a>
+  	  	<% }); %>
+  	  	</ul>
+
+  	  	<h1>Verse</h1>
+  	  	<ul>
+  	  	<% _.each(chordsModel.get('transposedVerse'), function (chord) { %>
+  	  		<a class="chordItem"><%= chord %></a>
+  	  	<% }); %>
+  	  	</ul>
+
+  	  	<h1>Chorus</h1>
+  	  	<ul>
+  	  	<% _.each(chordsModel.get('transposedChorus'), function (chord) { %>
+  	  		<a class="chordItem"><%= chord %></a>
+  	  	<% }); %>
+  	  	</ul>
+
+  	  	<h1>Bridge</h1>
+  	  	<ul>
+  	  	<% _.each(chordsModel.get('transposedBridge'), function (chord) { %>
+  	  		<a class="chordItem"><%= chord %></a>
+  	  	<% }); %>
+  	  	</ul>
+	  </script>
+
+	  <script type="text/template" id="enterChordsViewTemplate">
+  	  	<p class="activeEditingTitle"> the <%=  component %> </p>
+  	  	<p>Enter all of the chords you know for the <%= component %> of the song.  Enter one chord at a time.  Leave blank if there are none.</p>
+  	  	<input type="text" class="addChordInput form-control" id="chordInput_<%= component %>" /><a class="btn btn-success addChordBtn">Add Chord to <%= component %></a>
+  	  	<div class="chordsList"></div>
+  	  	<% if (component == "bridge") { %>
+  	  		<div class="continueArea">
+  	  			<a href="#/setOptions"><img src="continue-icon.png" alt="continue-icon"></img></a>
+  	  		</div>
+  	  	<% } else { %>
+  	  	
+  	  		<div class="continueArea">
+  	  			<a href="#/enterChords/<%= chordsModel.get('components')[component] %>"><img src="continue-icon.png" alt="continue-icon"></img></a>
+  	  		</div>
+  	  	<% } %>
+	  </script>
+
+	  <script type="text/template" id="chordsListTemplate">
+	  	
+  	  	<% _.each(chords, function (chord) { %>
+  	  		<a class="chordItem"><%= chord %></a>
+  	  	<% }); %>
+  	  
+	  </script>
+
+
+	  <script>
+
+	    var ChordsModel = Backbone.Model.extend({
+	    	defaults : {
+			    intro : [],
+			    verse : [],
+			    chorus : [],
+			    bridge : [],
+			    capoRestrict : 12,
+			    capoPosn : 0,
+			    transposition : 0,
+			    transposedIntro : [],
+			    transposedVerse : [],
+			    transposedChorus : [],
+			    transposedBridge : [],
+			    components : {
+			    	"intro" : "verse",
+			    	"verse" : "chorus",
+			    	"chorus" : "bridge",
+			    	"bridge" : ""
+			    }
+			}
+	    });
+	    var chordsModel = new ChordsModel();
+	    
+	    // the home view with welcome message
+	    var HomeView = Backbone.View.extend({
+	    	el: '.contentContainer',
+	    	render : function () {
+	    		//alert("helo");
+	    		var template = _.template($('#homeViewTemplate').html(), {});
+	    		this.$el.html(template);
+	    	}
+	    });
+
+	    var homeView = new HomeView();
+
+	    // the home view with welcome message
+	    var EnterChordsView = Backbone.View.extend({
+	    	el: '.contentContainer',
+	    	events : {
+	    		'click .addChordBtn' : 'addChord'
+
+	    	},
+	    	elmts : {
+	    		'ADD_CHORD_INPUT' : '.addChordInput'
+	    	},
+	    	addChord : function(ev) {
+	    		var input = $(this.elmts['ADD_CHORD_INPUT']);
+	    		if (input.val()) {
+		    		var component = input.attr("id").split("_")[1];
+		    		var arr = _.clone(chordsModel.get(component));
+		    		arr.push(input.val());
+		    		chordsModel.set(component, arr);
+		    	}
+	    		return false;
+	    	},
+
+	    	render : function (options) {
+	    		if (options.component) {
+	    			var template = _.template($('#enterChordsViewTemplate').html(), { component : options.component });
+	    			this.$el.html(template);
+	    		}
+	    		
+	    	},
+	    	// initialize function can be put here
+			renderChords : function (component) {
+				
+				var template = _.template($('#chordsListTemplate').html(), { chords : chordsModel.get(component) });
+				$('.chordsList').html(template);
+			}
+	    });
+
+	    var enterChordsView = new EnterChordsView();
+
+	    var SetOptionsView = Backbone.View.extend({
+	    	el : '.contentContainer',
+	    	events : {
+	    		'change #capoRestrictSelect' : 'setRestrict'
+	    	},
+	    	setRestrict : function (ev) {
+	    		chordsModel.set("capoRestrict", parseInt($('#capoRestrictSelect').val()));
+	    		return false;
+	    	},
+	    	render : function () {
+	    		var template = _.template($('#setOptionsViewTemplate').html(), {});
+	    		this.$el.html(template);
+	    	}
+	    });
+	    var setOptionsView = new SetOptionsView();
+
+	    var ResultView = Backbone.View.extend({
+	    	el : '.contentContainer',
+	    	render : function () {
+	    		var template = _.template($('#resultViewTemplate').html(), { });
+	    		this.$el.html(template);
+	    	},
+	    	getTransposed : function () {
+	    		var dataToSend = {
+					'intro' : chordsModel.get('intro'),
+					'verse' : chordsModel.get('verse'),
+					'chorus' : chordsModel.get('chorus'),
+					'bridge' : chordsModel.get('bridge'),
+					'restrict' : chordsModel.get('capoRestrict')
+				};
+				var that = this;
+				jQuery.ajax({
+                    type: 'POST',
+                    url: 'getTransposed.php',
+                    data: dataToSend,
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log("success!");
+                        chordsModel.set("transposedIntro", data["intro"]);
+                        chordsModel.set("transposedVerse", data["verse"]);
+                        chordsModel.set("transposedChorus", data["chorus"]);
+                        chordsModel.set("transposedBridge", data["bridge"]);
+                        chordsModel.set("capoPosn", data["capoPosn"]);
+                        chordsModel.set("transposition", data["transposition"]);
+
+                        that.render();
+                    },
+                    error: function() {
+                    	console.log("error");
+                    }
+                });
+	    	}
+	    });
+	    var resultView = new ResultView();
+
+	    chordsModel.on('change:intro', function () { return enterChordsView.renderChords("intro"); });
+	    chordsModel.on('change:verse', function () { return enterChordsView.renderChords("verse"); });
+	    chordsModel.on('change:chorus', function () { return enterChordsView.renderChords("chorus"); });
+	    chordsModel.on('change:bridge', function () { return enterChordsView.renderChords("bridge"); });
+
+
+	    var Router = Backbone.Router.extend({
+	        routes: {
+	          "": "home",
+	          "enterChords/:component" : "enterChords",
+	          "setOptions" : "setOptions",
+	          "result" : "result"
+	        }
+	    });
+	    
+
+	    var router = new Router();
+	    router.on('route:home', function() {
+	      // render user list
+	      homeView.render();
+	    });
+	    router.on('route:enterChords', function (component) {
+	    	enterChordsView.render({ component: component });
+	    });
+	    router.on('route:setOptions', function () {
+	    	setOptionsView.render();
+	    });
+	    router.on('route:result', function () {
+	    	resultView.getTransposed();
+	    });
+	    Backbone.history.start();
+	</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+@font-face
+{
+	font-family: Disco;
+	src: url('../fonts/DISCO.ttf');
+}
+@font-face
+{
+	font-family: OpenSans;
+	src: url('../fonts/open-sans/OpenSans-Regular.ttf');
+}
+body {
+	background-color: #8ab836;
+	font-family: OpenSans;
+}
+nav .navbar-brand {
+	font-family: Disco;
+	font-size: 26px;
+}
+nav.navbar {
+	background-image: -webkit-gradient(
+	linear,
+	left top,
+	left bottom,
+	color-stop(0, #FFFFFF),
+	color-stop(1, #D6D6D6)
+	);
+	background-image: -o-linear-gradient(bottom, #FFFFFF 0%, #D6D6D6 100%);
+	background-image: -moz-linear-gradient(bottom, #FFFFFF 0%, #D6D6D6 100%);
+	background-image: -webkit-linear-gradient(bottom, #FFFFFF 0%, #D6D6D6 100%);
+	background-image: -ms-linear-gradient(bottom, #FFFFFF 0%, #D6D6D6 100%);
+	background-image: linear-gradient(to bottom, #FFFFFF 0%, #D6D6D6 100%);
+}
+.contentContainer {
+	background-color: #f3f7ea;
+	padding: 25px;
+	box-shadow: 0px 3px 7px #333333;
+	font-size: 20px;
+	min-height: 400px;
+	position: relative;
+}
+.activeEditingTitle {
+	font-family: Disco;
+	font-size: 56px;
+	color: #3689b7;
+
+}
+.addChordInput {
+	max-width: 150px;
+	display: inline-block;
+	margin-right: 10px;
+}
+.addChordBtn {
+	background-color: #5cb85c;
+}
+.chordItem {
+	display: inline-block;
+	padding: 6px 12px;
+	margin-bottom: 0;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.428571429;
+	text-align: center;
+	white-space: nowrap;
+	vertical-align: middle;
+	cursor: pointer;
+	border: 1px solid #999999;
+	color: #000000;
+	border-radius: 4px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+.chordsList {
+	padding: 15px;
+}
+.continueArea {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}
